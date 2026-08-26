@@ -1,0 +1,27 @@
+{
+  "name": "playwright_eerste_maand",
+  "version": "2.0.1",
+  "author": "Jules van Nuijs for BEE Ideas",
+  "description": "educational repository for learning Playwright and TypeScript",
+  "devDependencies": {
+    "@playwright/test": "^1.62.1",
+    "@types/node": "^25.9.5",
+    "eslint": "^9.39.2",
+    "globals": "^17.2.0",
+    "tsx": "^4.21.0",
+    "typescript-eslint": "^8.54.0"
+  },
+  "scripts": {
+    "probeersels": "tsx ./typescript-workbench/probeersels.ts",
+    "exercises": "tsx ./typescript-workbench/exercises.ts",
+    "test": "npx playwright show-report \\PlaywrightEersteMaand\\testsoftware\\playwright-results",
+    "mijn-test": "tsx ./typescript-workbench/mijn-test.ts"
+  },
+  "dependencies": {
+    "play-sound": "^1.1.6",
+    "playwright": "^1.62.1"
+  },
+  "main": "index.js",
+  "keywords": [],
+  "type": "commonjs"
+}
