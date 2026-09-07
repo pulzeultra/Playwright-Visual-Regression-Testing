@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Playwright Visual Regression Testing Manual</title>
+<style>
+:root{--bg:#f5f7fa;--surface:#fff;--text:#24292f;--muted:#57606a;--border:#d0d7de;--heading:#172b4d;--accent:#005e8a;--code-bg:#f6f8fa;--table-header:#eef2f5;--shadow:0 4px 18px rgba(0,0,0,.06)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.65}
+.container{width:min(1100px,calc(100% - 40px));margin:40px auto 70px;background:var(--surface);padding:50px 65px;border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow)}
+h1{color:var(--heading);font-size:2.35rem;line-height:1.2;margin:0 0 35px;padding-bottom:20px;border-bottom:3px solid var(--accent)}
+h2{color:var(--heading);font-size:1.65rem;margin-top:48px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+h3{color:var(--heading);font-size:1.25rem;margin-top:32px}p{margin:12px 0}a{color:var(--accent)}ul,ol{padding-left:28px}li{margin:5px 0}
+code{background:var(--code-bg);border:1px solid var(--border);border-radius:5px;padding:2px 6px;font-family:Consolas,"Courier New",monospace;font-size:.9em}
+pre{background:#1e1e1e;color:#f1f1f1;padding:18px 20px;border-radius:8px;overflow-x:auto;margin:20px 0;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+pre code{background:transparent;border:0;padding:0;color:inherit;font-size:.9rem;line-height:1.55}
+table{width:100%;border-collapse:collapse;margin:22px 0;font-size:.95rem}th,td{border:1px solid var(--border);padding:10px 13px;text-align:left;vertical-align:top}th{background:var(--table-header);color:var(--heading);font-weight:650}tr:nth-child(even) td{background:#fafbfc}
+.footer{text-align:center;color:var(--muted);font-size:.85rem;margin-top:40px}
+@media(max-width:700px){.container{width:100%;margin:0;border-radius:0;border-left:0;border-right:0;padding:30px 22px}h1{font-size:1.8rem}h2{font-size:1.4rem}table{display:block;overflow-x:auto;white-space:nowrap}}
+@media print{body{background:white}.container{width:100%;margin:0;padding:0;border:0;box-shadow:none}pre{white-space:pre-wrap}h2{break-after:avoid}}
+</style>
+</head>
+<body>
+<main class="container">
+<h1>Playwright Visual Regression Testing Manual</h1>
+<p class="author">Written and maintained by Andrzej Schillings</p>
+<h2>1. Overview</h2>
+<p>This project demonstrates several <strong>Playwright screenshot and snapshot testing techniques</strong> using a local HTML website.</p>
+<p>The tests show how to:</p>
+<ul><li>Compare an entire webpage against a stored screenshot.</li><li>Compare a specific web element against a stored screenshot.</li><li>Run the same visual tests in <strong>Chromium, Firefox, and WebKit</strong>.</li><li>Hide elements during screenshot comparison.</li><li>Mask dynamic web elements.</li><li>Set a maximum number of allowed differing pixels.</li><li>Detect a single-pixel difference.</li><li>Compare text against stored snapshot files.</li><li>Intentionally test scenarios that should fail.</li></ul>
+<p>The project uses <strong>TypeScript</strong>, <strong>Playwright</strong>, and a local HTML test website, so no internet connection is required for the actual website under test.</p>
+<h1>2. Prerequisites</h1>
+<p>Before using this project on another computer, make sure the following software is installed.</p>
+<h2>Required</h2>
+<h3>Node.js</h3>
+<p>Install a current <strong>LTS version of Node.js</strong>.</p>
+<p>Verify the installation:</p>
+<pre><code>node --version
+npm --version</code></pre>
+<p>Both commands should return a version number.</p>
+<h3>Visual Studio Code</h3>
+<p>Visual Studio Code is recommended for editing and running the tests, although another code editor can also be used.</p>
+<h3>Git</h3>
+<p>Git is only required if the project is being cloned from a Git repository.</p>
+<p>Verify it with:</p>
+<pre><code>git --version</code></pre>
+<h1>3. Project Setup</h1>
+<h2>3.1 Open the project</h2>
+<p>Open the project folder in Visual Studio Code.</p>
+<p>A typical project structure could look like this:</p>
+<pre><code>Project/
+│
+├── package.json
+├── package-lock.json
+├── tsconfig.json
+│
+├── playwrightTests/
+│   ├── TestWebsite/
+│   │   ├── website.html
+│   │   └── cat.html
+│   │
+│   ├── screenshots/
+│   │   ├── screenshot.png
+│   │   ├── screenshotWebElement.png
+│   │   ├── screenshotWithHiddenElements.png
+│   │   └── screenshot1px.png
+│   │
+│   ├── hideWebElements.css
+│   └── visualTests.spec.ts</code></pre>
+<p>The exact folder structure can differ, but the paths referenced in the test file must exist.</p>
+<h1>4. Install Dependencies</h1>
+<p>Open a terminal in the project folder and run:</p>
+<pre><code>npm install</code></pre>
+<p>This installs the dependencies listed in <code>package.json</code>.</p>
+<p>If Playwright has not yet been installed in the project, install it with:</p>
+<pre><code>npm install -D @playwright/test</code></pre>
+<h1>5. Install the Playwright Browsers</h1>
+<p>Installing the Playwright package does not necessarily mean that all required browser binaries are available.</p>
+<p>Install Chromium, Firefox, and WebKit with:</p>
+<pre><code>npx playwright install</code></pre>
+<p>This project specifically uses all three browsers:</p>
+<ul><li>Chromium</li><li>Firefox</li><li>WebKit</li></ul>
+<p>If you only need Chromium:</p>
+<pre><code>npx playwright install chromium</code></pre>
+<p>For this project, however, use:</p>
+<pre><code>npx playwright install</code></pre>
+<h1>6. TypeScript Configuration</h1>
+<p>The project uses TypeScript.</p>
+<p>A basic <code>tsconfig.json</code> can look like this:</p>
+<pre><code>{
+  &quot;compilerOptions&quot;: {
+    &quot;target&quot;: &quot;ESNext&quot;,
+    &quot;module&quot;: &quot;commonjs&quot;,
+    &quot;moduleResolution&quot;: &quot;node&quot;,
+    &quot;strict&quot;: false,
+    &quot;esModuleInterop&quot;: true,
+    &quot;skipLibCheck&quot;: true,
+    &quot;forceConsistentCasingInFileNames&quot;: true
+  }
+}</code></pre>
+<p>The important part for this project is that TypeScript can resolve Node.js modules such as <code>path</code>.</p>
+<p>If TypeScript reports:</p>
+<pre><code>Cannot find name &#x27;path&#x27;</code></pre>
+<p>make sure Node.js type definitions are installed:</p>
+<pre><code>npm install -D @types/node</code></pre>
+<p>The import used by the test is:</p>
+<pre><code>import * as path from &quot;path&quot;;</code></pre>
+<h1>7. Running the Tests</h1>
+<p>Run all Playwright tests with:</p>
+<pre><code>npx playwright test</code></pre>
+<p>Run the tests with the browser visible:</p>
+<pre><code>npx playwright test --headed</code></pre>
+<p>Open the Playwright UI:</p>
+<pre><code>npx playwright test --ui</code></pre>
+<p>Run a specific test file:</p>
+<pre><code>npx playwright test visualTests.spec.ts</code></pre>
+<h1>8. Understanding the Browser Setup</h1>
+<p>The project manually launches a browser depending on the test name.</p>
+<pre><code>if (testInfo.title.includes(&quot;Firefox&quot;)) {
+  browser = await firefox.launch({ headless: false });
+} else if (testInfo.title.includes(&quot;Webkit&quot;)) {
+  browser = await webkit.launch({ headless: false });
+} else {
+  browser = await chromium.launch({ headless: false });
+}</code></pre>
+<p>This means:</p>
+<table><tr><th>Test title contains</th><th>Browser</th></tr><tr><td><code>Firefox</code></td><td>Firefox</td></tr><tr><td><code>Webkit</code></td><td>WebKit</td></tr><tr><td>Neither</td><td>Chromium</td></tr></table>
+<p>For example:</p>
+<pre><code>Compare a screenshot ... using Firefox</code></pre>
+<p>runs in Firefox.</p>
+<p>A normal test such as:</p>
+<pre><code>Compare a screenshot ...</code></pre>
+<p>runs in Chromium.</p>
+<p>A test containing:</p>
+<pre><code>using Webkit</code></pre>
+<p>runs in WebKit.</p>
+<h2>Why is this done?</h2>
+<p>It allows the same visual test to be executed against different browser engines.</p>
+<p>This is particularly useful for visual regression testing because a page can render slightly differently between browser engines.</p>
+<h1>9. Browser Window Size</h1>
+<p>The browser context is created with:</p>
+<pre><code>context = await browser.newContext({
+  viewport: { width: 1920, height: 1080 },
+});</code></pre>
+<p>This gives the page a fixed viewport of:</p>
+<p><strong>1920 × 1080 pixels</strong></p>
+<p>Using a fixed viewport is important for screenshot testing because changing the viewport can change the layout and therefore the screenshot.</p>
+<h1>10. Test Setup and Cleanup</h1>
+<h2><code>beforeEach</code></h2>
+<p>Before every test:</p>
+<ol><li>1. The appropriate browser is launched.</li><li>2. A browser context is created.</li><li>3. A new page is created.</li></ol>
+<pre><code>test.beforeEach(async ({}, testInfo) =&gt; {
+  // Browser selection
+
+  // Create context
+
+  // Create page
+});</code></pre>
+<h2><code>afterEach</code></h2>
+<p>After every test:</p>
+<pre><code>await browser.close();</code></pre>
+<p>This closes the browser even when the test fails.</p>
+<p>The test result is also printed to the terminal:</p>
+<pre><code>Test : Compare a screenshot...
+Result: ✅</code></pre>
+<p>or:</p>
+<pre><code>Test : Compare a screenshot...
+Result: ❌</code></pre>
+<h1>11. Using a Local HTML Website</h1>
+<p>Instead of navigating to an online website, the tests open a local HTML file.</p>
+<pre><code>await page.goto(
+  `file://${path.resolve(&quot;playwrightTests/TestWebsite/website.html&quot;)}`
+);</code></pre>
+<p><code>path.resolve()</code> converts the relative path into an absolute path.</p>
+<p>For example:</p>
+<pre><code>playwrightTests/TestWebsite/website.html</code></pre>
+<p>might become:</p>
+<pre><code>C:\Projects\PlaywrightTest\playwrightTests\TestWebsite\website.html</code></pre>
+<p>The <code>file://</code> prefix tells Playwright to open the file locally.</p>
+<h2>Important</h2>
+<p>The referenced HTML file must exist at the specified location.</p>
+<p>If the HTML file is moved, update the path in the test.</p>
+<h1>12. Full-Page Screenshot Comparison</h1>
+<p>The basic visual comparison is:</p>
+<pre><code>await expect(page).toHaveScreenshot(&quot;screenshot.png&quot;, {
+  fullPage: true,
+});</code></pre>
+<p>This takes a screenshot of the entire page and compares it with:</p>
+<pre><code>screenshot.png</code></pre>
+<p>If the screenshots match within the configured tolerance, the test passes.</p>
+<p>If they differ beyond the tolerance, the test fails.</p>
+<h1>13. Screenshot Snapshots</h1>
+<p>The screenshot specified here:</p>
+<pre><code>&quot;screenshot.png&quot;</code></pre>
+<p>is a <strong>reference snapshot</strong>.</p>
+<p>The first time a snapshot is created, Playwright stores the expected image.</p>
+<p>Later test runs compare the current page against that stored image.</p>
+<p>If the website changes visually, Playwright detects the difference.</p>
+<h1>14. Updating Snapshots</h1>
+<p>If a visual change is intentional, the stored screenshot can be updated.</p>
+<p>Use:</p>
+<pre><code>npx playwright test --update-snapshots</code></pre>
+<p>Short form:</p>
+<pre><code>npx playwright test -u</code></pre>
+<p><strong>Be careful when doing this.</strong></p>
+<p>Updating snapshots means that the new screenshot becomes the expected result. An accidental visual change could therefore be accepted as the new baseline.</p>
+<h1>15. Element Screenshot Comparison</h1>
+<p>The project also demonstrates comparing only a specific web element.</p>
+<pre><code>const webElement = page.locator(&quot;.hero&quot;);
+
+await expect(webElement).toHaveScreenshot(
+  &quot;screenshotWebElement.png&quot;
+);</code></pre>
+<p>Instead of comparing the entire page, Playwright compares only:</p>
+<pre><code>.hero</code></pre>
+<p>This is useful when only one component needs visual regression testing.</p>
+<p>Examples include:</p>
+<ul><li>Header</li><li>Footer</li><li>Button</li><li>Card</li><li>Navigation menu</li><li>Hero section</li><li>Form</li><li>Dialog</li></ul>
+<h1>16. Hiding Elements During Comparison</h1>
+<p>The project uses <code>stylePath</code> to temporarily apply CSS during the screenshot.</p>
+<pre><code>await expect(page).toHaveScreenshot(
+  &quot;screenshotWithHiddenElements.png&quot;,
+  {
+    fullPage: true,
+    stylePath:
+      &quot;../toHaveScreenshot/playwrightTests/hideWebElements.css&quot;,
+  }
+);</code></pre>
+<p>The CSS file contains rules for elements that should not appear in the screenshot comparison.</p>
+<p>For example:</p>
+<pre><code>.tour-banner {
+  display: none !important;
+}
+
+.site-header {
+  display: none !important;
+}</code></pre>
+<p>This is useful when certain elements are irrelevant to the visual comparison.</p>
+<p>For example:</p>
+<ul><li>Cookie notifications</li><li>Tour banners</li><li>Advertisements</li><li>Dynamic notifications</li><li>Temporary UI elements</li></ul>
+<h1>17. Masking Dynamic Elements</h1>
+<p>Another approach is to mask elements rather than hide them.</p>
+<pre><code>await expect(page).toHaveScreenshot(&quot;screenshot.png&quot;, {
+  fullPage: true,
+  mask: [
+    page.locator(&quot;.tour-banner&quot;),
+    page.locator(&quot;.site-header&quot;),
+  ],
+  maskColor: &quot;#005E8A&quot;,
+});</code></pre>
+<p>The selected elements are covered by the specified mask color.</p>
+<h3>Hide vs. Mask</h3>
+<table><tr><th>Method</th><th>What happens?</th></tr><tr><td><code>stylePath</code></td><td>Element is hidden/modified using CSS</td></tr><tr><td><code>mask</code></td><td>Element remains in the layout but its contents are covered</td></tr></table>
+<p>Masking is useful when the element&#x27;s position and size are important but its content is dynamic.</p>
+<h1>18. Pixel Difference Tolerance</h1>
+<p>The project contains two tests that demonstrate pixel tolerance.</p>
+<h2>0 Pixel Tolerance</h2>
+<pre><code>await expect(page).toHaveScreenshot(&quot;screenshot1px.png&quot;, {
+  fullPage: true,
+  maxDiffPixels: 0,
+});</code></pre>
+<p>This allows <strong>zero differing pixels</strong>.</p>
+<p>Therefore, even a single changed pixel causes the test to fail.</p>
+<h3>Example</h3>
+<pre><code>Expected screenshot
+████████████████
+
+Actual screenshot
+███████████████░
+
+Difference: 1 pixel
+
+maxDiffPixels: 0
+Result: ❌ FAIL</code></pre>
+<h1>19. 100 Pixel Tolerance</h1>
+<p>The second test uses:</p>
+<pre><code>maxDiffPixels: 100</code></pre>
+<p>This means up to 100 different pixels are allowed.</p>
+<p>If the difference is:</p>
+<pre><code>1 pixel → PASS
+50 pixels → PASS
+100 pixels → PASS
+101 pixels → FAIL</code></pre>
+<p>This is useful when very small rendering differences are acceptable.</p>
+<h1>20. Comparing Against a Completely Different Website</h1>
+<p>This test intentionally compares the wrong website with the screenshot:</p>
+<pre><code>await page.goto(
+  `file://${path.resolve(&quot;playwrightTests/TestWebsite/cat.html&quot;)}`
+);
+
+await expect(page).toHaveScreenshot(&quot;screenshot.png&quot;, {
+  fullPage: true,
+});</code></pre>
+<p>Because <code>cat.html</code> does not visually match the stored screenshot, the test should fail.</p>
+<p>This demonstrates that Playwright can detect major visual changes.</p>
+<h1>21. Text Snapshot Testing</h1>
+<p>Visual testing does not have to be limited to screenshots.</p>
+<p>The project also compares text.</p>
+<pre><code>expect(
+  await page.textContent(&quot;.footer-tagline&quot;)
+).toMatchSnapshot(&quot;footer-tagline.txt&quot;);</code></pre>
+<p>The text inside:</p>
+<pre><code>.footer-tagline</code></pre>
+<p>is compared with:</p>
+<pre><code>footer-tagline.txt</code></pre>
+<p>For example, if the expected text is:</p>
+<pre><code>Making the web better, one test at a time.</code></pre>
+<p>and the website changes it to:</p>
+<pre><code>Making the web better, one test at a time!</code></pre>
+<p>the snapshot comparison detects the difference.</p>
+<h1>22. Intentionally Failing Tests</h1>
+<p>Two tests are deliberately designed to fail:</p>
+<h3>1px difference with 0px tolerance</h3>
+<pre><code>maxDiffPixels: 0</code></pre>
+<p>This should fail because the screenshot contains a 1-pixel difference.</p>
+<h3>Different website</h3>
+<p>The test compares <code>cat.html</code> against the screenshot of the original website.</p>
+<p>This should also fail.</p>
+<h3>Different text</h3>
+<p>The footer tagline is compared against a text snapshot containing different text.</p>
+<p>This should fail.</p>
+<p>These tests are useful for demonstrating that the visual and text comparisons are actually detecting changes.</p>
+<h1>23. What Each Test Demonstrates</h1>
+<table><tr><th>Test</th><th>Purpose</th></tr><tr><td>Full page screenshot</td><td>Basic visual comparison</td></tr><tr><td>Full page + Firefox</td><td>Visual comparison in Firefox</td></tr><tr><td>Full page + WebKit</td><td>Visual comparison in WebKit</td></tr><tr><td>Web element screenshot</td><td>Compare a specific element</td></tr><tr><td>Web element + Firefox</td><td>Element comparison in Firefox</td></tr><tr><td>Web element + WebKit</td><td>Element comparison in WebKit</td></tr><tr><td>Hidden elements</td><td>Ignore selected elements</td></tr><tr><td>Hidden elements + Firefox</td><td>Hidden elements in Firefox</td></tr><tr><td>Hidden elements + WebKit</td><td>Hidden elements in WebKit</td></tr><tr><td>Masked elements</td><td>Mask dynamic elements</td></tr><tr><td>1px difference / 0 tolerance</td><td>Demonstrate strict comparison</td></tr><tr><td>1px difference / 100 tolerance</td><td>Demonstrate allowed differences</td></tr><tr><td>Different website</td><td>Demonstrate large visual failure</td></tr><tr><td>Matching text</td><td>Successful text snapshot</td></tr><tr><td>Different text</td><td>Failed text snapshot</td></tr></table>
+<h1>24. Recommended Project Checklist</h1>
+<p>Before giving this project to someone else, make sure they have:</p>
+<ul><li>☐ Node.js installed</li><li>☐ npm available</li><li>☐ Visual Studio Code installed</li><li>☐ Project files copied/cloned</li><li>☐ <code>package.json</code> present</li><li>☐ <code>tsconfig.json</code> present</li><li>☐ Playwright installed</li><li>☐ Node.js type definitions installed</li><li>☐ Chromium installed through Playwright</li><li>☐ Firefox installed through Playwright</li><li>☐ WebKit installed through Playwright</li><li>☐ HTML test files present</li><li>☐ Screenshot files present</li><li>☐ CSS file for hidden elements present</li><li>☐ Screenshot paths correct</li><li>☐ Test file paths correct</li></ul>
+<h1>25. Quick Setup for a New Computer</h1>
+<p>For someone who already has Node.js installed, the setup should generally be:</p>
+<pre><code>git clone &lt;repository&gt;
+cd &lt;project-folder&gt;
+npm install
+npx playwright install
+npx playwright test</code></pre>
+<p>To run with visible browsers:</p>
+<pre><code>npx playwright test --headed</code></pre>
+<p>To open Playwright&#x27;s UI:</p>
+<pre><code>npx playwright test --ui</code></pre>
+<h1>26. Troubleshooting</h1>
+<h2><code>Cannot find module &#x27;@playwright/test&#x27;</code></h2>
+<p>Run:</p>
+<pre><code>npm install</code></pre>
+<p>or:</p>
+<pre><code>npm install -D @playwright/test</code></pre>
+<h2><code>Cannot find name &#x27;path&#x27;</code></h2>
+<p>Make sure the import exists:</p>
+<pre><code>import * as path from &quot;path&quot;;</code></pre>
+<p>If TypeScript still reports an error:</p>
+<pre><code>npm install -D @types/node</code></pre>
+<h2>Browser executable not found</h2>
+<p>Install the Playwright browsers:</p>
+<pre><code>npx playwright install</code></pre>
+<h2>Screenshot comparison fails unexpectedly</h2>
+<p>Check:</p>
+<ol><li>1. Browser type.</li><li>2. Viewport size.</li><li>3. Operating system.</li><li>4. Stored screenshot.</li><li>5. Font availability.</li><li>6. Dynamic content.</li><li>7. Animations.</li><li>8. Masked/hidden elements.</li><li>9. Screenshot path.</li></ol>
+<p>Visual tests can be sensitive to differences between environments.</p>
+<h1>27. Important Consideration: Different Computers</h1>
+<p>Although Playwright makes browser rendering reproducible, screenshots can still differ between computers because of:</p>
+<ul><li>Operating system rendering</li><li>Installed fonts</li><li>Font versions</li><li>Browser versions</li><li>Graphics rendering</li><li>Device scale factor</li><li>Browser configuration</li></ul>
+<p>For the most reliable visual regression testing, it is best to run the screenshots in a consistent environment, especially in CI.</p>
+<h1>28. Useful Playwright Commands</h1>
+<h3>Run all tests</h3>
+<pre><code>npx playwright test</code></pre>
+<h3>Run headed</h3>
+<pre><code>npx playwright test --headed</code></pre>
+<h3>Run in UI mode</h3>
+<pre><code>npx playwright test --ui</code></pre>
+<h3>Update screenshots</h3>
+<pre><code>npx playwright test -u</code></pre>
+<h3>Run a specific test</h3>
+<pre><code>npx playwright test -g &quot;1px-altered&quot;</code></pre>
+<h3>Run a specific browser project</h3>
+<p>If browser projects are configured in <code>playwright.config.ts</code>:</p>
+<pre><code>npx playwright test --project=chromium</code></pre>
+<h1>29. Summary</h1>
+<p>This project is a small demonstration of <strong>Playwright visual regression testing</strong>.</p>
+<p>The core idea is simple:</p>
+<pre><code>Website
+   ↓
+Take screenshot
+   ↓
+Compare with stored screenshot
+   ↓
+Differences detected?
+   ├── No → PASS
+   └── Yes → FAIL</code></pre>
+<p>The project demonstrates increasingly advanced comparison techniques:</p>
+<ol><li>1. Full-page comparison</li><li>2. Element comparison</li><li>3. Cross-browser comparison</li><li>4. Hiding elements</li><li>5. Masking elements</li><li>6. Pixel tolerance</li><li>7. Intentional visual failures</li><li>8. Text snapshot comparison</li></ol>
+<p>The most important command for getting the project running on a new computer is:</p>
+<pre><code>npx playwright install</code></pre>
+<p>and the most important command for running the tests is:</p>
+<pre><code>npx playwright test</code></pre>
+<div class="footer">Playwright Visual Regression Testing Manual</div>
+</main>
+</body>
+</html>
