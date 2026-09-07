@@ -111,7 +111,7 @@ test("Compare a screenshot to the website it was taken from while hiding certain
   // Compare the entire page against the stored screenshot
   await expect(page).toHaveScreenshot("screenshotWithHiddenElements.png", {
     fullPage: true,
-    stylePath: "../toHaveScreenshot/playwrightTests/hideWebElements.css",
+    stylePath: "../Playwright Visual Regression Testing/playwrightTests/hideWebElements.css",
   });
 });
 
@@ -124,7 +124,7 @@ test("Compare a screenshot to the website it was taken from while hiding certain
   // Compare the entire page against the stored screenshot
   await expect(page).toHaveScreenshot("screenshotWithHiddenElements.png", {
     fullPage: true,
-    stylePath: "../toHaveScreenshot/playwrightTests/hideWebElements.css",
+    stylePath: "../Playwright Visual Regression Testing/playwrightTests/hideWebElements.css",
   });
 });
 
@@ -137,7 +137,7 @@ test("Compare a screenshot to the website it was taken from while hiding certain
   // Compare the entire page against the stored screenshot
   await expect(page).toHaveScreenshot("screenshotWithHiddenElements.png", {
     fullPage: true,
-    stylePath: "../toHaveScreenshot/playwrightTests/hideWebElements.css",
+    stylePath: "../Playwright Visual Regression Testing/playwrightTests/hideWebElements.css",
   });
 });
 
