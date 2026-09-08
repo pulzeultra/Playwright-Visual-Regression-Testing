@@ -109,7 +109,7 @@ test("Compare a screenshot to the website it was taken from while hiding certain
   );
 
   // Compare the entire page against the stored screenshot
-  await expect(page).toHaveScreenshot("screenshotWithHiddenElements.png", {
+  await expect(page).toHaveScreenshot("screenshotHiddenElements.png", {
     fullPage: true,
     stylePath: "../Playwright-Visual-Regression-Testing/playwrightTests/hideWebElements.css",
   });
@@ -122,7 +122,7 @@ test("Compare a screenshot to the website it was taken from while hiding certain
   );
 
   // Compare the entire page against the stored screenshot
-  await expect(page).toHaveScreenshot("screenshotWithHiddenElements.png", {
+  await expect(page).toHaveScreenshot("screenshotHiddenElements.png", {
     fullPage: true,
     stylePath: "../Playwright-Visual-Regression-Testing/playwrightTests/hideWebElements.css",
   });
@@ -135,7 +135,7 @@ test("Compare a screenshot to the website it was taken from while hiding certain
   );
 
   // Compare the entire page against the stored screenshot
-  await expect(page).toHaveScreenshot("screenshotWithHiddenElements.png", {
+  await expect(page).toHaveScreenshot("screenshotHiddenElements.png", {
     fullPage: true,
     stylePath: "../Playwright-Visual-Regression-Testing/playwrightTests/hideWebElements.css",
   });
@@ -148,12 +148,41 @@ test("Compare a screenshot to the website it was taken from while masking certai
   );
 
   // Compare the entire page with masked web elements against the stored screenshot
-  await expect(page).toHaveScreenshot("screenshot.png", {
+  await expect(page).toHaveScreenshot("screenshotMaskedElements.png", {
     fullPage: true,
     mask: [page.locator(".tour-banner"), page.locator(".site-header")],
     maskColor: "#005E8A",
   });
 });
+
+test("Compare a screenshot to the website it was taken from while masking certain web elements using Firefox", async () => {
+  // Navigate to the website
+  await page.goto(
+    `file://${path.resolve("playwrightTests/TestWebsite/website.html")}`
+  );
+
+  // Compare the entire page with masked web elements against the stored screenshot
+  await expect(page).toHaveScreenshot("screenshotMaskedElements.png", {
+    fullPage: true,
+    mask: [page.locator(".tour-banner"), page.locator(".site-header")],
+    maskColor: "#005E8A",
+  });
+});
+
+test("Compare a screenshot to the website it was taken from while masking certain web elements using Webkit", async () => {
+  // Navigate to the website
+  await page.goto(
+    `file://${path.resolve("playwrightTests/TestWebsite/website.html")}`
+  );
+
+  // Compare the entire page with masked web elements against the stored screenshot
+  await expect(page).toHaveScreenshot("screenshotMaskedElements.png", {
+    fullPage: true,
+    mask: [page.locator(".tour-banner"), page.locator(".site-header")],
+    maskColor: "#005E8A",
+  });
+});
+
 
 test("Compare a 1px-altered screenshot to the website it was taken from with 0px tolerance", async () => {
   // Navigate to the website
