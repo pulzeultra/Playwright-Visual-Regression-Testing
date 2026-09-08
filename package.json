@@ -1,8 +1,8 @@
 {
-  "name": "playwright_eerste_maand",
-  "version": "2.0.1",
-  "author": "Jules van Nuijs for BEE Ideas",
-  "description": "educational repository for learning Playwright and TypeScript",
+  "name": "Playwright Visual Regression Testing",
+  "version": "1.0",
+  "author": "Andrzej Schillings",
+  "description": "Automated visual regression testing suite using Playwright and TypeScript with multi-browser snapshot comparison.",
   "devDependencies": {
     "@playwright/test": "^1.62.1",
     "@types/node": "^25.9.5",
@@ -12,13 +12,8 @@
     "typescript-eslint": "^8.54.0"
   },
   "scripts": {
-    "probeersels": "tsx ./typescript-workbench/probeersels.ts",
-    "exercises": "tsx ./typescript-workbench/exercises.ts",
-    "test": "npx playwright show-report \\PlaywrightEersteMaand\\testsoftware\\playwright-results",
-    "mijn-test": "tsx ./typescript-workbench/mijn-test.ts"
   },
   "dependencies": {
-    "play-sound": "^1.1.6",
     "playwright": "^1.62.1"
   },
   "main": "index.js",
