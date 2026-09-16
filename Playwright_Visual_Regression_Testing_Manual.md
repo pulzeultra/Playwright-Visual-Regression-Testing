@@ -834,11 +834,6 @@ screenshot-chromium-win32.png
 In this project, the following setting is used in `playwright.config.ts`:
 
 ```typescript
-// Remove the browser suffix from screenshot filenames.
-// Using the same screenshot filename allows the same baseline image to be compared
-// across different browsers, making cross-browser visual testing possible.
-// To add the browser suffix back to the filenames, remove this setting from the config
-// and select the desired browser project in the Playwright Testing environment.
 snapshotPathTemplate: "{testDir}/{testFilePath}-snapshots/{arg}{ext}",
 ```
 
