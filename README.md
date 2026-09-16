@@ -1,10 +1,10 @@
 # Playwright Visual Regression Testing Manual
 
-*Written and maintained by Andrzej Schillings*
-
 ## 1. Overview
 
-This project demonstrates several **Playwright screenshot and snapshot testing techniques** using a local HTML website.
+This project demonstrates several **Playwright screenshot testing techniques** using a local HTML website.
+
+> **Terminology:** In this manual, **screenshot** refers to an image captured from the webpage and used for visual comparison. Playwright also uses the technical term **snapshot** for stored comparison data, but to keep this manual clear and consistent, image-based visual comparisons are described as screenshots. **Text snapshots** are still called snapshots because they are text comparison files created with `toMatchSnapshot()`.
 
 The tests show how to:
 
@@ -15,7 +15,7 @@ The tests show how to:
 - Mask dynamic web elements.
 - Set a maximum number of allowed differing pixels.
 - Detect a single-pixel difference.
-- Compare text against stored snapshot files.
+- Compare text against stored text snapshots.
 - Intentionally test scenarios that should fail.
 
 The project uses **TypeScript**, **Playwright**, and a local HTML test website, so no internet connection is required for the actual website under test.
@@ -383,7 +383,7 @@ If they differ beyond the tolerance, the test fails.
 
 ---
 
-# 13. Screenshot Snapshots
+# 13. Screenshot Baselines
 
 The screenshot specified here:
 
@@ -391,19 +391,23 @@ The screenshot specified here:
 "screenshot.png"
 ```
 
-is a **reference snapshot**.
+is the **baseline screenshot** used for visual comparison.
 
-The first time a snapshot is created, Playwright stores the expected image.
-
-Later test runs compare the current page against that stored image.
+The first time the test is run, Playwright creates and stores the baseline screenshot. Later test runs capture a new screenshot and compare it with the stored baseline.
 
 If the website changes visually, Playwright detects the difference.
 
+### Screenshot vs. Snapshot
+
+Playwright often uses the word **snapshot** for stored expected comparison data. For this project, however, the visual comparison files are images, so this manual consistently calls them **screenshots** or **baseline screenshots**.
+
+The term **text snapshot** is still used for text comparisons because those tests store text rather than images.
+
 ---
 
-# 14. Updating Snapshots
+# 14. Updating Baseline Screenshots
 
-If a visual change is intentional, the stored screenshot can be updated.
+If a visual change is intentional, the stored baseline screenshot can be updated.
 
 Use:
 
@@ -419,7 +423,7 @@ npx playwright test -u
 
 **Be careful when doing this.**
 
-Updating snapshots means that the new screenshot becomes the expected result. An accidental visual change could therefore be accepted as the new baseline.
+Updating the baseline screenshot means that the new screenshot becomes the expected result. An accidental visual change could therefore be accepted as the new baseline.
 
 ---
 
@@ -819,7 +823,34 @@ For the most reliable visual regression testing, it is best to run the screensho
 
 ---
 
-# 28. Useful Playwright Commands
+# 28. Screenshot Filename Configuration
+
+By default, Playwright can add the browser and operating-system information to screenshot filenames. For example:
+
+```text
+screenshot-chromium-win32.png
+```
+
+In this project, the following setting is used in `playwright.config.ts`:
+
+```typescript
+// Remove the browser suffix from screenshot filenames.
+// Using the same screenshot filename allows the same baseline image to be compared
+// across different browsers, making cross-browser visual testing possible.
+// To add the browser suffix back to the filenames, remove this setting from the config
+// and select the desired browser project in the Playwright Testing environment.
+snapshotPathTemplate: "{testDir}/{testFilePath}-snapshots/{arg}{ext}",
+```
+
+This prevents Playwright from adding the browser and platform suffix to the filename. The same baseline screenshot can therefore be used when testing the page in Chromium, Firefox, or WebKit.
+
+This is useful for **cross-browser visual testing** because each browser can be tested against the same baseline screenshot rather than automatically creating a separate browser-specific filename.
+
+If separate browser-specific screenshot filenames are preferred, remove `snapshotPathTemplate` from `playwright.config.ts`. Playwright will then use its default naming behavior, and the configured browser projects can be selected in the Playwright Testing environment.
+
+---
+
+## 29. Useful Playwright Commands
 
 ### Run all tests
 
@@ -861,7 +892,7 @@ npx playwright test --project=chromium
 
 ---
 
-# 29. Summary
+# 30. Summary
 
 This project is a small demonstration of **Playwright visual regression testing**.
 
