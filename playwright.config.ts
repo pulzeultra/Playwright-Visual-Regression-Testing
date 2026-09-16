@@ -13,10 +13,8 @@ import { defineConfig, devices } from '@playwright/test';
  */
 export default defineConfig({
 
-  // Remove the default browser and platform suffix from screenshot filenames.
-  // Without this, Playwright can add "-chromium-win32" to the filename based on
-  // the configured project, even when a different browser is actually being used.
-  // Using the same snapshot filename allows the same baseline image to be compared
+  // Remove the browser suffix from screenshot filenames.
+  // Using the same screeshot filename allows the same baseline image to be compared
   // across different browsers, making cross-browser visual testing possible.
   snapshotPathTemplate: "{testDir}/{testFilePath}-snapshots/{arg}{ext}",
 
