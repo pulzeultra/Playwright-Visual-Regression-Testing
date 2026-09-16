@@ -4,7 +4,7 @@
 
 This project demonstrates several **Playwright screenshot testing techniques** using a local HTML website.
 
-> **Terminology:** In this manual, **screenshot** refers to an image captured from the webpage and used for visual comparison. Playwright also uses the technical term **snapshot** for stored comparison data, but to keep this manual clear and consistent, image-based visual comparisons are described as screenshots. **Text snapshots** are still called snapshots because they are text comparison files created with `toMatchSnapshot()`.
+> **Terminology:** In this manual, **screenshot** refers to an image captured from the webpage and used for visual comparison. Playwright also uses the technical term **snapshot** for this but to keep this manual clear and consistent, image-based visual comparisons are described as screenshots. **Text snapshots** are still called snapshots because they are text comparison files created with `toMatchSnapshot()`.
 
 The tests show how to:
 
